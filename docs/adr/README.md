@@ -69,6 +69,7 @@ This folder holds the architecture decisions for Teletron. The source for ADR-00
 | [ADR-053](0053-simple-lip-sync-volume-or-visemes.md)                            | Simple lip sync: volume or visemes                                              | Accepted                     |
 | [ADR-054](0054-downloaded-pre-rigged-models-for-personal-use-only.md)           | Downloaded pre-rigged models, for personal use only                             | Accepted                     |
 | [ADR-055](0055-mood-tags-with-assistant-replies.md)                             | Mood tags with assistant replies                                                | Accepted                     |
+| [ADR-056](0056-slice-1-reuses-small-libraries-and-native-node-apis.md)          | Slice 1 reuses small libraries and native Node APIs                             | Proposed                     |
 
 ## Deferred
 

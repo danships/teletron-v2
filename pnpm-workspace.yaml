@@ -2,6 +2,9 @@ packages:
   - apps/*
   - packages/*
 
+allowBuilds:
+  esbuild: true
+
 # Wait 3 days before a new package version can be installed (supply chain protection).
 minimumReleaseAge: 4320
 

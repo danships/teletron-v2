@@ -4,19 +4,19 @@ The roadmap is rolling (ADR-043). Work in thin slices. Each slice ends with some
 
 Update the status column when a slice starts or finishes. Dan approves changes to the order.
 
-| Slice | Name                              | Status  |
-| ----- | --------------------------------- | ------- |
-| 1     | Hub and first display             | Next    |
-| 2     | Scheduling                        | Planned |
-| 3     | MCP control plane                 | Planned |
-| 4     | Events and overlays               | Planned |
-| 5     | iPixel panel and animation        | Planned |
-| 6     | Agent-defined sources and history | Planned |
-| 7     | Bridges and actions               | Planned |
-| 8     | Capability router                 | Planned |
-| 9     | Assistant                         | Planned |
-| 10    | Pet                               | Planned |
-| 11    | Later                             | Backlog |
+| Slice | Name                              | Status     |
+| ----- | --------------------------------- | ---------- |
+| 1     | Hub and first display             | Spec draft |
+| 2     | Scheduling                        | Planned    |
+| 3     | MCP control plane                 | Planned    |
+| 4     | Events and overlays               | Planned    |
+| 5     | iPixel panel and animation        | Planned    |
+| 6     | Agent-defined sources and history | Planned    |
+| 7     | Bridges and actions               | Planned    |
+| 8     | Capability router                 | Planned    |
+| 9     | Assistant                         | Planned    |
+| 10    | Pet                               | Planned    |
+| 11    | Later                             | Backlog    |
 
 ## 1. Hub and first display
 
@@ -31,7 +31,8 @@ Proposed PR split. This is a starting point for the slice 1 spec, not an approve
 1. **Protocol envelope:** types and validation in `packages/protocol`, with tests. No I/O. Input: [proposal 001](proposals/001-wire-protocol-draft.md). Resolve its conflict list in the spec.
 2. **Module spec:** types for the component library and the web layout, with validation tests.
 3. **Hub database:** supersave on MySQL, with tables for nodes and tokens. Store only the token hash.
-4. **Pairing CLI:** create a node and show its token one time.
+4. **Temporary pairing CLI:** create a node and show its token one time. Slice 3
+   replaces and removes the local CLI/IPC control stack.
 5. **Hub WebSocket server:** token authentication, manifest, presence tracking, newest connection wins.
 6. **Node client:** connect, send the manifest, reconnect, keep the cached scene when the hub is offline.
 7. **Scene assignment:** the hub sends one scene to a node address. The node stores it.
@@ -46,6 +47,8 @@ Proposed PR split. This is a starting point for the slice 1 spec, not an approve
 ## 3. MCP control plane
 
 - MCP server with versioning and validation.
+- Agent-facing MCP/API replaces and removes the temporary local pairing and
+  scene CLI/IPC control stack from slice 1.
 - From here, agents help to build the rest through MCP.
 
 ## 4. Events and overlays
