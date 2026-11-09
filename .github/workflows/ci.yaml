@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Security audit
+        run: pnpm audit --audit-level moderate --prod
+
+      - name: PR size cap
+        if: github.event_name == 'pull_request'
+        run: bash scripts/check-pr-size.sh "origin/${{ github.base_ref }}"
+
+      - name: Typecheck and build
+        run: pnpm build
+
+      - name: Lint (eslint, prettier, dependency boundaries)
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm exec vitest run

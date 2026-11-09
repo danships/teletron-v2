@@ -1,0 +1,9 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Wait 3 days before a new package version can be installed (supply chain protection).
+minimumReleaseAge: 4320
+
+# No dependency may run install scripts. Add a package here only with a reason in the PR.
+onlyBuiltDependencies: []

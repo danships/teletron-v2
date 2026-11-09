@@ -1,0 +1,41 @@
+{
+  "name": "teletron",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "packageManager": "pnpm@11.18.0",
+  "scripts": {
+    "setup": "pnpm install --ignore-scripts && husky",
+    "dev:hub": "pnpm --filter @teletron/hub dev",
+    "dev:node": "pnpm --filter @teletron/node dev",
+    "build": "tsc -b",
+    "clean": "tsc -b --clean",
+    "typecheck": "tsc -b",
+    "lint": "pnpm run lint:eslint && pnpm run lint:prettier && pnpm run lint:deps",
+    "lint:eslint": "eslint --max-warnings 0 .",
+    "lint:prettier": "prettier --check --log-level=warn .",
+    "lint:deps": "depcruise apps packages --config .dependency-cruiser.cjs",
+    "format": "prettier --write . && eslint --fix .",
+    "test": "tsc -b && vitest run",
+    "test:watch": "vitest",
+    "check": "pnpm run typecheck && pnpm run lint && pnpm run test"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.0",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@tsconfig/strictest": "^2.0.8",
+    "@types/node": "^26.1.0",
+    "dependency-cruiser": "^18.7.2",
+    "eslint": "^10.8.0",
+    "eslint-plugin-unicorn": "^65.0.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.8",
+    "prettier": "^3.9.4",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.62.1",
+    "vitest": "^4.1.12"
+  }
+}

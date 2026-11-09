@@ -1,0 +1,79 @@
+language: en-US
+tone_instructions: 'Be direct and short. Prefer deleting code over adding code.'
+enable_free_tier: true
+reviews:
+  profile: assertive
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_placeholder: '@coderabbitai summary'
+  high_level_summary_in_walkthrough: false
+  auto_title_placeholder: '@coderabbitai'
+  auto_title_instructions: Use conventional commits structure
+  review_status: true
+  commit_status: true
+  fail_commit_status: false
+  collapse_walkthrough: false
+  changed_files_summary: true
+  sequence_diagrams: true
+  assess_linked_issues: true
+  related_issues: true
+  related_prs: true
+  suggested_labels: true
+  auto_apply_labels: false
+  suggested_reviewers: false
+  auto_assign_reviewers: false
+  poem: false
+  labeling_instructions: []
+  path_instructions:
+    - path: '**/*'
+      instructions: |
+        Most code in this repo is written by AI agents. Apply this simplicity rubric (ADR-041, ADR-042) and flag each finding:
+        1. Out-of-spec changes: code that the linked spec in docs/specs/ does not ask for, or that touches a non-goal.
+        2. Unneeded abstractions: a new interface, base class, factory, registry or generic helper without a concrete second use.
+        3. Speculative code: options, flags, extension points or error paths for cases that do not exist yet.
+        4. New dependencies: name each one. Ask if the standard library or an existing dependency can do it. Check that the PR description gives a reason. Flag, do not block.
+        5. Protected paths changed without mention in the PR description (see below).
+        6. Weakened tests: removed assertions, skipped tests, or acceptance tests changed to match the code.
+        7. Raised lint budgets or disabled lint rules.
+    - path: 'packages/protocol/**'
+      instructions: 'Protected path: wire protocol types. Flag every change. It needs explicit approval from Dan. Check backward compatibility with connected nodes.'
+    - path: 'apps/hub/src/db/schema/**'
+      instructions: 'Protected path: database schema. Flag every change. It needs explicit approval from Dan.'
+    - path: 'docs/specs/**'
+      instructions: 'Protected path: specs. Flag every change. An implementing agent must not change its own spec or acceptance criteria.'
+    - path: 'AGENTS.md'
+      instructions: 'Protected path: agent rules. Flag every change. It needs explicit approval from Dan.'
+    - path: '{eslint.config.mjs,.dependency-cruiser.cjs,scripts/check-pr-size.sh}'
+      instructions: 'Guardrail config. Flag any change that relaxes a budget, removes a rule or raises the PR size cap.'
+  abort_on_close: true
+  disable_cache: false
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    ignore_title_keywords: []
+    labels: []
+    drafts: false
+    base_branches: []
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
+  tools:
+    shellcheck:
+      enabled: true
+    markdownlint:
+      enabled: true
+    github-checks:
+      enabled: true
+      timeout_ms: 90000
+    yamllint:
+      enabled: true
+    gitleaks:
+      enabled: true
+    eslint:
+      enabled: true
+    dotenvLint:
+      enabled: true
+chat:
+  auto_reply: true
