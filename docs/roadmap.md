@@ -4,19 +4,19 @@ The roadmap is rolling (ADR-043). Work in thin slices. Each slice ends with some
 
 Update the status column when a slice starts or finishes. Dan approves changes to the order.
 
-| Slice | Name                              | Status     |
-| ----- | --------------------------------- | ---------- |
-| 1     | Hub and first display             | Spec draft |
-| 2     | Scheduling                        | Planned    |
-| 3     | MCP control plane                 | Planned    |
-| 4     | Events and overlays               | Planned    |
-| 5     | iPixel panel and animation        | Planned    |
-| 6     | Agent-defined sources and history | Planned    |
-| 7     | Bridges and actions               | Planned    |
-| 8     | Capability router                 | Planned    |
-| 9     | Assistant                         | Planned    |
-| 10    | Pet                               | Planned    |
-| 11    | Later                             | Backlog    |
+| Slice | Name                              | Status      |
+| ----- | --------------------------------- | ----------- |
+| 1     | Hub and first display             | In progress |
+| 2     | Scheduling                        | Planned     |
+| 3     | MCP control plane                 | Planned     |
+| 4     | Events and overlays               | Planned     |
+| 5     | iPixel panel and animation        | Planned     |
+| 6     | Agent-defined sources and history | Planned     |
+| 7     | Bridges and actions               | Planned     |
+| 8     | Capability router                 | Planned     |
+| 9     | Assistant                         | Planned     |
+| 10    | Pet                               | Planned     |
+| 11    | Later                             | Backlog     |
 
 ## 1. Hub and first display
 
