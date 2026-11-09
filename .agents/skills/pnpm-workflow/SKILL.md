@@ -33,16 +33,16 @@ The workspaces are `apps/*` and `packages/*`.
 
 ## Commands
 
-| Purpose | Command |
-| --- | --- |
-| Initial setup | `pnpm setup` |
-| Hub development | `pnpm dev:hub` |
-| Node development | `pnpm dev:node` |
-| Build | `pnpm build` |
-| Type check | `pnpm typecheck` |
-| Lint | `pnpm lint` |
-| Tests | `pnpm test` |
-| Full required gate | `pnpm check` |
+| Purpose            | Command          |
+| ------------------ | ---------------- |
+| Initial setup      | `pnpm setup`     |
+| Hub development    | `pnpm dev:hub`   |
+| Node development   | `pnpm dev:node`  |
+| Build              | `pnpm build`     |
+| Type check         | `pnpm typecheck` |
+| Lint               | `pnpm lint`      |
+| Tests              | `pnpm test`      |
+| Full required gate | `pnpm check`     |
 
 Use the narrowest useful check while iterating, then run `pnpm check` before handing off an
 implementation. Do not relax ESLint, dependency-cruiser, or PR-size checks to make a change pass.
