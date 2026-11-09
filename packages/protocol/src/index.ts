@@ -1,3 +1,26 @@
-// Wire protocol shared by the hub and all nodes. This is a protected path (see AGENTS.md).
-// The envelope and module spec are designed in roadmap slice 1. Until then this package only holds the version.
-export const PROTOCOL_VERSION = 0;
+export {
+  BINARY_HEADER_SIZE,
+  BINARY_MAGIC,
+  binaryHeaderSchema,
+  decodeBinaryHeader,
+  encodeBinaryHeader,
+  type BinaryHeader,
+} from './binary-header.js';
+export { decodeJsonMessage, envelopeSchema, type Envelope } from './envelope.js';
+export {
+  errorBodySchema,
+  errorCodeSchema,
+  type ErrorBody,
+  type ErrorCode,
+  type ParseFailure,
+  type ParseResult,
+} from './errors.js';
+export {
+  PROTOCOL_MAJOR,
+  PROTOCOL_MINOR,
+  PROTOCOL_VERSION,
+  negotiateProtocolVersion,
+  parseProtocolVersion,
+  protocolVersionSchema,
+  type ProtocolVersion,
+} from './version.js';

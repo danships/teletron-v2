@@ -1,6 +1,6 @@
 # Spec 001: Hub and first display
 
-- Status: Proposed
+- Status: Approved
 - Roadmap slice: 1 (see ADR-043)
 - Related ADRs: ADR-002 through ADR-014, ADR-020 through ADR-023, ADR-034,
   ADR-040, ADR-041, ADR-043, ADR-051 and proposed ADR-056

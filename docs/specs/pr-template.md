@@ -28,8 +28,8 @@
 
 <Purpose of the table and whether it is new or modified.>
 
-| Field | Type | Notes |
-| --- | --- | --- |
+| Field          | Type     | Notes                                                     |
+| -------------- | -------- | --------------------------------------------------------- |
 | `<field_name>` | `<type>` | <Nullability, default, constraints, indexes, and meaning> |
 
 **Relationships**
@@ -51,8 +51,8 @@
 - **Auth:** <public, session, API key, or required role>
 - **Request body / query parameters:**
 
-  | Field | Type | Required | Notes |
-  | --- | --- | --- | --- |
+  | Field          | Type     | Required | Notes                          |
+  | -------------- | -------- | -------- | ------------------------------ |
   | `<field_name>` | `<type>` | Yes / No | <Validation rules and meaning> |
 
 - **Response:**
@@ -65,8 +65,8 @@
 
 - **Errors:**
 
-  | Status | Reason |
-  | --- | --- |
+  | Status          | Reason                                   |
+  | --------------- | ---------------------------------------- |
   | `<status_code>` | <When and why this response is returned> |
 
 ---
