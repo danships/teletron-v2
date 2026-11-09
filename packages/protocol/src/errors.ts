@@ -29,6 +29,7 @@ export type ParseFailure = {
 
 export type ParseResult<Value> = { readonly ok: true; readonly value: Value } | ParseFailure;
 
+/** Creates a safe protocol parse failure without exposing the rejected input. */
 export function parseFailure(code: ErrorCode, message: string, retryable = false): ParseFailure {
   return { ok: false, error: { code, message, retryable } };
 }

@@ -20,11 +20,13 @@ export const protocolVersionSchema = z
 
 export type ProtocolVersion = z.infer<typeof protocolVersionSchema>;
 
+/** Parses a major.minor protocol version into validated numeric components. */
 export function parseProtocolVersion(input: string): ParseResult<ProtocolVersion> {
   const result = protocolVersionSchema.safeParse(input);
   return result.success ? { ok: true, value: result.data } : parseFailure('BAD_REQUEST', 'Invalid protocol version');
 }
 
+/** Negotiates a compatible version within Teletron's supported protocol major. */
 export function negotiateProtocolVersion(input: string): ParseResult<string> {
   const parsed = parseProtocolVersion(input);
   if (!parsed.ok) {

@@ -5,6 +5,7 @@ import {
   envelopeSchema,
   errorBodySchema,
   negotiateProtocolVersion,
+  PROTOCOL_VERSION,
   type Envelope,
 } from './index.js';
 
@@ -69,16 +70,29 @@ describe('protocol envelope', () => {
     });
   });
 
-  it('strips additive unknown envelope and body fields', () => {
+  it('enforces the 64 KiB protocol maximum above a larger caller limit', () => {
+    const input = JSON.stringify({ ...validEnvelope, body: { value: 'a'.repeat(65_536) } });
+
+    expect(decodeJsonMessage(input, Number.MAX_SAFE_INTEGER)).toEqual({
+      ok: false,
+      error: {
+        code: 'LIMIT_EXCEEDED',
+        message: 'JSON message exceeds negotiated limit',
+        retryable: false,
+      },
+    });
+  });
+
+  it('strips additive envelope fields and preserves body fields for message validation', () => {
     const input = JSON.stringify({
       ...validEnvelope,
       futureEnvelopeField: 'ignored',
-      body: { futureBodyField: 'ignored' },
+      body: { futureBodyField: { value: 1 } },
     });
 
     expect(decodeJsonMessage(input, 65_536)).toEqual({
       ok: true,
-      value: { ...validEnvelope, body: {} },
+      value: { ...validEnvelope, body: { futureBodyField: { value: 1 } } },
     });
   });
 
@@ -121,6 +135,10 @@ describe('protocol errors', () => {
 });
 
 describe('protocol version negotiation', () => {
+  it('exports protocol version 1.0 from the package entry point', () => {
+    expect(PROTOCOL_VERSION).toBe('1.0');
+  });
+
   it('rejects a different major version', () => {
     expect(negotiateProtocolVersion('2.0')).toEqual({
       ok: false,

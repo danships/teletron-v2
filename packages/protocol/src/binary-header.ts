@@ -26,6 +26,7 @@ const kindCodes = {
   blob: 2,
 } as const;
 
+/** Encodes a validated Teletron binary header in its 16-byte wire format. */
 export function encodeBinaryHeader(header: BinaryHeader): Uint8Array {
   const parsed = binaryHeaderSchema.safeParse(header);
   if (!parsed.success) {
@@ -44,6 +45,7 @@ export function encodeBinaryHeader(header: BinaryHeader): Uint8Array {
   return output;
 }
 
+/** Decodes and validates a Teletron binary header from its wire format. */
 export function decodeBinaryHeader(input: Uint8Array): ParseResult<BinaryHeader> {
   if (input.byteLength < BINARY_HEADER_SIZE || input[0] !== BINARY_MAGIC) {
     return parseFailure('BAD_REQUEST', 'Invalid binary header');
@@ -71,6 +73,7 @@ export function decodeBinaryHeader(input: Uint8Array): ParseResult<BinaryHeader>
   };
 }
 
+/** Maps a binary wire kind code to its protocol kind. */
 function decodeKind(value: number | undefined): BinaryHeader['kind'] | undefined {
   if (value === kindCodes.audio) {
     return 'audio';

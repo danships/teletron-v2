@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 import { parseFailure, type ParseResult } from './errors.js';
 
+const MAX_JSON_BYTES = 65_536;
+
 const messageTypeSchema = z
   .string()
   .min(1)
@@ -14,17 +16,18 @@ export const envelopeSchema = z.object({
   id: z.uuid(),
   ref: z.uuid().optional(),
   ts: z.number().int().nonnegative(),
-  body: z.object({}),
+  body: z.record(z.string(), z.unknown()),
 });
 
 export type Envelope = z.infer<typeof envelopeSchema>;
 
+/** Decodes and validates a JSON envelope within the negotiated and protocol size limits. */
 export function decodeJsonMessage(input: string, maxJsonBytes: number): ParseResult<Envelope> {
   if (!Number.isSafeInteger(maxJsonBytes) || maxJsonBytes <= 0) {
     return parseFailure('BAD_REQUEST', 'Invalid JSON limit');
   }
 
-  if (new TextEncoder().encode(input).byteLength > maxJsonBytes) {
+  if (new TextEncoder().encode(input).byteLength > Math.min(maxJsonBytes, MAX_JSON_BYTES)) {
     return parseFailure('LIMIT_EXCEEDED', 'JSON message exceeds negotiated limit');
   }
 
