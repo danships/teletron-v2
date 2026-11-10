@@ -53,10 +53,14 @@ describe('token grants', () => {
       tokenGrantSchema.parse([
         { type: 'display:web', instance: 'hdmi', scope: 'local' },
         { type: 'sensor:air', instance: 'inside', scope: 'local' },
-      ])
+      ]),
+      'living-room-pi'
     );
 
-    expect(result).toEqual({ granted: ['hdmi'], rejected: ['inside', 'outside'] });
+    expect(result).toEqual({
+      granted: ['living-room-pi/hdmi'],
+      rejected: ['living-room-pi/inside', 'living-room-pi/outside'],
+    });
     expect(result).not.toHaveProperty('pending');
   });
 });

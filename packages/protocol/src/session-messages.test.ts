@@ -72,6 +72,12 @@ describe('session messages', () => {
     if (!result.ok) expect(result.error.code).toBe('BAD_REQUEST');
   });
 
+  it.each(validMessages.slice(0, 2))('rejects an invalid $type object body', (message) => {
+    const result = decodeSessionMessage(JSON.stringify({ ...message, body: { nodeId: 'x' } }), 65_536);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe('BAD_REQUEST');
+  });
+
   it('accepts positive resume revisions and rejects revision zero', () => {
     const hello = validMessages[0];
     if (hello?.type !== 'hello') throw new Error('Missing hello fixture');

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { capabilityInstanceSchema } from './identity.js';
+import { buildCapabilityAddress, capabilityInstanceSchema } from './identity.js';
 
 export const capabilityTypeSchema = z
   .string()
@@ -88,13 +88,13 @@ export type Capability = z.infer<typeof capabilitySchema>;
 export type Manifest = z.infer<typeof manifestSchema>;
 export type TokenGrants = z.infer<typeof tokenGrantSchema>;
 
-/** Divides manifest instances by exact token grant without creating pending state. */
-export function classifyManifestGrants(manifest: Manifest, grants: TokenGrants) {
+/** Divides manifest addresses by exact token grant without creating pending state. */
+export function classifyManifestGrants(manifest: Manifest, grants: TokenGrants, nodeName: string) {
   const exactGrants = new Set(grants.map((grant) => `${grant.type}\0${grant.instance}\0${grant.scope}`));
   const result: { granted: string[]; rejected: string[] } = { granted: [], rejected: [] };
   for (const capability of manifest.capabilities) {
     const key = `${capability.type}\0${capability.instance}\0${capability.scope}`;
-    result[exactGrants.has(key) ? 'granted' : 'rejected'].push(capability.instance);
+    result[exactGrants.has(key) ? 'granted' : 'rejected'].push(buildCapabilityAddress(nodeName, capability.instance));
   }
   return result;
 }
