@@ -70,3 +70,7 @@ export {
   protocolVersionSchema,
   type ProtocolVersion,
 } from './version.js';
+
+export * from './components.js';
+export * from './scene.js';
+export * from './display-messages.js';
