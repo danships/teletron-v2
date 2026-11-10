@@ -24,7 +24,15 @@ ADR-004; do not use SuperSave's optional HTTP API or introduce a second persiste
 - Packages never import apps, and apps never import other apps.
 - Read `DATABASE_URL` through validated hub configuration. Never embed credentials in source,
   fixtures, logs, errors, specs, or protocol messages.
-- Use transactions for operations whose invariants span multiple writes.
+- For Slice 1, follow the document model in Spec 001 and proposed ADR-057: embed token history in
+  nodes, versions in scenes and assignments in nodes. Public node UUIDs are separate from opaque
+  SuperSave storage IDs. No SQL constraints, row locks or upstream transaction extensions are required.
+- Route all mutations through the sole live hub's async command queue; run application uniqueness,
+  reference and active-token checks inside it. Multiple hub writers and direct CLI database writes
+  are unsupported. A queue does not provide cross-process locking or cross-document rollback.
+- Save credentials with one document write. Save scene versions before assignments; publish only
+  after assignment persistence. Handle uncertain writes by rereading, reuse unassigned matching
+  versions on retry, and prune only after rechecking references inside the queue.
 
 ## SuperSave repository pattern
 
@@ -36,7 +44,7 @@ const rows = await repository.getByQuery(query);
 const row = await repository.getOneByQuery(query);
 const created = await repository.create(input);
 const updated = await repository.update({ ...existing, changedField });
-await repository.delete(existing.id);
+await repository.deleteUsingId(existing.id); // Only where the spec permits deletion.
 ```
 
 Build queries from `repository.createQuery()` and keep query construction close to the repository
@@ -54,6 +62,8 @@ source-project entity names, helpers, imports, or migration layout into Teletron
 
 ## Tests and handoff
 
-Cover successful writes, missing rows, uniqueness and foreign-key constraints, transaction rollback,
-and every security invariant affected by the change. Use isolated test data and never point tests at
+Cover successful writes/readback, missing or malformed records, application uniqueness/reference
+checks, overlapping commands through one hub, interrupted writes/retries, and every affected security
+invariant. For Slice 1, test its documented document-write guarantees instead of SQL constraints or
+transaction rollback. Use isolated test data and never point tests at
 a non-test database. Finish with `pnpm check`.

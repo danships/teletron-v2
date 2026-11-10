@@ -8,7 +8,7 @@
 
 Add the temporary Slice 1 operator CLI and owner-only Unix control socket for
 node creation, revocation and replacement-token issuance. The live hub owns all
-database transactions; CLI processes send one validated command and receive one
+serialized persistence commands; CLI processes send one validated command and receive one
 response, and plaintext tokens cross stdout exactly once.
 
 ---
@@ -31,7 +31,7 @@ response, and plaintext tokens cross stdout exactly once.
        `crypto.randomBytes(32).toString('base64url')` and SHA-256. Return plaintext
        only from the creation boundary; never attach it to an entity or error.
 5. [ ] Add `apps/hub/src/nodes/node-commands.ts` to validate exact grants and
-       call PR4 repository transactions. Inject `closeTokenSession(tokenId)`;
+       call PR4 single-document repository operations through the shared hub queue. Inject `closeTokenSession(tokenId)`;
        PR5 uses a no-session implementation and PR6 supplies the live registry.
 6. [ ] Add `apps/hub/src/control/control-server.ts` using Node Unix sockets.
        Remove only a positively identified stale socket at the configured exact
