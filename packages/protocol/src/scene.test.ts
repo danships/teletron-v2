@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { scene } from './scene.fixture.js';
 import { assertSceneTarget, sceneSchema } from './scene.js';
 
+const stack = (children: unknown[]) => ({ type: 'stack', direction: 'row', alignment: 'start', gap: 'none', children });
+
 describe('web scenes AT-M01–M07', () => {
   it('accepts the complete scene and preserves markup as text', () => {
     expect(sceneSchema.parse(scene)).toEqual(scene);
@@ -55,6 +57,28 @@ describe('web scenes AT-M01–M07', () => {
   });
   it('reports target mismatch', () => expect(assertSceneTarget({ target: 'pixel' }, 'display:web').ok).toBe(false));
   it('rejects a non-web capability', () => expect(assertSceneTarget({ target: 'web' }, 'other').ok).toBe(false));
+  it('accepts a scene over 60,000 bytes within the frame limit', () => {
+    const leaf = {
+      type: 'text',
+      value: { type: 'literal', value: 'a'.repeat(850) },
+      size: 'small',
+      weight: 'regular',
+      tone: 'default',
+    };
+    const largeScene = {
+      ...scene,
+      modules: [
+        {
+          ...scene.modules[0],
+          component: stack(Array.from({ length: 8 }, () => stack(Array.from({ length: 8 }, () => leaf)))),
+        },
+      ],
+    };
+    const bytes = new TextEncoder().encode(JSON.stringify(largeScene)).byteLength;
+    expect(bytes).toBeGreaterThan(60_000);
+    expect(bytes).toBeLessThan(65_536);
+    expect(sceneSchema.safeParse(largeScene).success).toBe(true);
+  });
   it('bounds tree depth and child count', () => {
     let component: unknown = scene.modules[0]?.component;
     for (let index = 0; index < 20; index++)

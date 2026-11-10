@@ -41,8 +41,7 @@ export const sceneSchema = z
           placement.row + placement.rowSpan - 1 <= scene.grid.rows &&
           placement.column + placement.columnSpan - 1 <= scene.grid.columns
       )
-  )
-  .refine((scene) => new TextEncoder().encode(JSON.stringify(scene)).byteLength <= 60_000);
+  );
 export function assertSceneTarget(
   scene: { target: string },
   capability: string
