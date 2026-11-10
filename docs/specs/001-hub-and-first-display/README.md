@@ -22,6 +22,7 @@ tests first, and keep the PR below 600 changed lines.
 | 11  | [Open-Meteo weather](011-open-meteo-weather.md)                                 |
 | 12  | [YouTube followers and wall display](012-youtube-followers-and-wall-display.md) |
 
-These plans do not approve implementation. Changes to `packages/protocol/` and
-`apps/hub/src/db/schema/` remain protected and require Dan's approval when the
-corresponding PR starts, as required by `AGENTS.md` and Spec 001.
+These plans inherit approval from approved Spec 001, including the planned
+changes to `packages/protocol/` and `apps/hub/src/db/schema/`. No additional
+explicit approval from Dan is needed when each PR starts. Seek approval only
+for scope or design changes, as described in `AGENTS.md`.

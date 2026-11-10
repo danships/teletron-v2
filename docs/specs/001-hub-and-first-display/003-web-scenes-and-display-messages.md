@@ -16,7 +16,7 @@ rejecting arbitrary HTML, CSS, scripts, URLs and unsupported target layouts.
 
 ### Shared protocol package
 
-1. [ ] Obtain approval to change the protected `packages/protocol/` path.
+1. [ ] Verify that the planned protected-path changes are covered by approved Spec 001; no additional approval is needed.
 2. [ ] Create `packages/protocol/src/scene.test.ts` with the AT-M01 through
        AT-M07 fixtures before implementation. Include one complete three-module
        scene and one fixture for every rejected free-form property.

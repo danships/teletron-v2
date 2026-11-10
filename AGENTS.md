@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Rules for AI agents in this repo. This file is a protected path. Do not change it without approval from Dan.
+Rules for AI agents in this repo. This file is a protected path covered by the plan approval rule below.
 
 ## Context
 
@@ -31,9 +31,13 @@ Everything you need is in this repo. Read these before you start:
 5. Implement inside the spec. Do not touch non-goals.
 6. Run `pnpm check`. Commit only when asked.
 
-## Protected paths
+## Plan approval and protected paths
 
-Ask Dan before you change: `packages/protocol/`, `apps/hub/src/db/schema/`, `docs/specs/`, `AGENTS.md`. Do not relax `eslint.config.mjs`, `.dependency-cruiser.cjs` or `scripts/check-pr-size.sh`.
+Dan's approval of a spec or plan authorizes all changes it includes, including changes to protected paths: `packages/protocol/`, `apps/hub/src/db/schema/`, `docs/specs/`, and `AGENTS.md`. No additional explicit approval from Dan is needed for each file, protected path, implementation step, or PR within that scope. PR plans that expand an approved spec without changing its scope inherit that approval.
+
+Link the approved spec or plan in the PR description and identify protected-path changes. Agents and reviewers must use that approval rather than request it again. A direct request from Dan also authorizes the changes needed to carry out that request, including changes to these rules.
+
+Ask for approval only when work adds scope or changes an approved design or acceptance criteria. Writing a new plan does not approve it. Do not relax `eslint.config.mjs`, `.dependency-cruiser.cjs` or `scripts/check-pr-size.sh`.
 
 ## Rules
 

@@ -16,7 +16,7 @@ and node share one validated handshake contract without adding transport I/O.
 
 ### Shared protocol package
 
-1. [ ] Obtain approval to change the protected `packages/protocol/` path.
+1. [ ] Verify that the planned protected-path changes are covered by approved Spec 001; no additional approval is needed.
 2. [ ] Add failing fixtures in `packages/protocol/src/identity.test.ts` for
        AT-P07 and in `packages/protocol/src/manifest.test.ts` for AT-P08,
        AT-P09 and AT-P11.

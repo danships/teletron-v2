@@ -27,13 +27,13 @@ dimming the other modules.
   cache; a temporary owner-only local hub control socket; a loopback renderer
   boundary.
 - **New or changed tables (protected path):** `nodes`, `node_tokens`, `scenes`,
-  `scene_versions` and `scene_assignments`, defined below. Schema changes need
-  Dan's approval again when the database PR plan is expanded.
+  `scene_versions` and `scene_assignments`, defined below. Approval of this
+  spec authorizes these schema changes and their PR implementation plans.
 - **New or changed protocol messages (protected path):** `hello`, `welcome`,
   `session.ready`, `ping`, `pong`, `display.scene.set`,
   `display.data.update`, `display.state`, `display.resync` and `error`, defined
-  below. Protocol changes need Dan's approval again when their PR plans are
-  expanded.
+  below. Approval of this spec authorizes these protocol changes and their PR
+  implementation plans; no additional explicit approval from Dan is needed.
 - **New dependencies:** `zod` for schemas, inferred types and runtime
   validation; `ws` for the hub WebSocket server; `supersave` and `mysql2` for
   ADR-004 persistence; `happy-dom` for Vitest DOM tests; `@types/ws` only if
