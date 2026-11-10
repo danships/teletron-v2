@@ -10,3 +10,7 @@ minimumReleaseAge: 4320
 
 # No dependency may run install scripts. Add a package here only with a reason in the PR.
 onlyBuiltDependencies: []
+
+overrides:
+  # Patch GHSA-w5hq-g745-h8pq in SuperSave's transitive dependency.
+  short-uuid@4.2.2>uuid: 11.1.1
