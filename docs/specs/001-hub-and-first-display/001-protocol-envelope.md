@@ -25,7 +25,7 @@ WebSocket, filesystem or application I/O.
 
 ### Shared protocol package
 
-1. [ ] Obtain approval to change the protected `packages/protocol/` path.
+1. [ ] Verify that the planned protected-path changes are covered by approved Spec 001; no additional approval is needed.
 2. [ ] Write `packages/protocol/src/envelope.test.ts` for AT-P01 through AT-P04
        before implementation, including compile-time type assertions that fail
        if an inferred envelope member becomes `any`.

@@ -64,7 +64,7 @@ Hashed node credentials and exact grants; new table.
 
 ### Database
 
-1. [ ] Obtain approval before changing protected `apps/hub/src/db/schema/`.
+1. [ ] Verify that the planned protected-path changes are covered by approved Spec 001; no additional approval is needed.
 2. [ ] Add a database integration-test harness that requires an explicit test
        `DATABASE_URL`, creates an isolated database namespace, runs migrations
        and cleans only that namespace.

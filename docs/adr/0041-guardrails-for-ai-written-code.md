@@ -11,7 +11,7 @@ Agents write most code with limited supervision. Complexity must be visible and 
 
 ## Decision
 
-Each slice starts with a short plan (files touched, new concepts, tables, protocol messages, dependencies, non-goals) that Dan approves before coding. Each slice has a spec with explicit non-goals. Acceptance tests come from the spec, and the implementing agent must not weaken them. Protected paths (protocol types, database schema, specs, AGENTS.md) need Dan's approval. CI enforces strict TypeScript, linting, maximum file and function length, cyclomatic complexity, dependency-cruiser boundaries and a PR size cap. Every few slices, a simplification pass deletes and simplifies only, with no features.
+Each slice starts with a short plan (files touched, new concepts, tables, protocol messages, dependencies, non-goals) that Dan approves before coding. Each slice has a spec with explicit non-goals. Acceptance tests come from the spec, and the implementing agent must not weaken them. Approval of the spec or plan authorizes its changes to protected paths (protocol types, database schema, specs, AGENTS.md). PR plans that expand it within scope inherit approval; agents and reviewers must not request additional explicit approval from Dan. Direct requests from Dan authorize the changes needed to fulfill them. New scope or changes to an approved design or acceptance criteria need approval. CI enforces strict TypeScript, linting, maximum file and function length, cyclomatic complexity, dependency-cruiser boundaries and a PR size cap. Every few slices, a simplification pass deletes and simplifies only, with no features.
 
 ## Consequences
 

@@ -1,6 +1,6 @@
 ## Slice and spec
 
-<!-- Link the approved spec in docs/specs/. -->
+<!-- Link the approved spec or plan, or reference the direct request from Dan. Approval covers all changes within its scope, including protected paths; no additional explicit approval is needed. -->
 
 ## What changed
 
@@ -12,5 +12,5 @@
 
 - [ ] The change stays inside the spec. Non-goals are not touched.
 - [ ] Acceptance tests are not weakened or removed.
-- [ ] No changes to protected paths, or Dan approved them.
+- [ ] Protected-path changes are identified and covered by the linked approved spec, plan, or direct request from Dan.
 - [ ] `pnpm check` passes.

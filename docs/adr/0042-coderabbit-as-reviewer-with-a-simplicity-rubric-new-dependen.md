@@ -11,7 +11,7 @@ CodeRabbit is already in use. Hard blocks on dependencies are too restrictive.
 
 ## Decision
 
-CodeRabbit reviews every PR. Path instructions carry a simplicity rubric: out-of-spec changes, unneeded abstractions, speculative code, new dependencies and protected-file changes. New dependencies are not blocked. The PR must give a reason, and CodeRabbit flags them.
+CodeRabbit reviews every PR. Path instructions carry a simplicity rubric: out-of-spec changes, unneeded abstractions, speculative code, new dependencies and protected-file changes. Protected-path changes covered by the linked approved spec or plan need no additional explicit approval from Dan; flag missing coverage or scope changes rather than demanding approval again. New dependencies are not blocked. The PR must give a reason, and CodeRabbit flags them.
 
 ## Consequences
 

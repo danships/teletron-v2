@@ -21,7 +21,7 @@ Describe the slice at architecture level. Put file-level implementation details 
 
 ## PR Plan
 
-Split the slice into PRs. Each PR must stay under 600 changed lines, have its own tests, and leave the system in a working state. Dan approves this list with the spec. Before implementing a PR, expand its entry into an actionable plan using [pr-template.md](pr-template.md).
+Split the slice into PRs. Each PR must stay under 600 changed lines, have its own tests, and leave the system in a working state. Dan approves this list with the spec. Before implementing a PR, expand its entry into an actionable plan using [pr-template.md](pr-template.md). Approval of this spec covers all planned changes, including protected paths. PR plans within this scope inherit approval; no additional explicit approval from Dan is needed.
 
 1. [ ] **<Conventional PR title>** — <What it adds, its boundaries, which acceptance tests it covers, and how to verify it.>
 

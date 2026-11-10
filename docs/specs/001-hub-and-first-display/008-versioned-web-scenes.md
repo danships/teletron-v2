@@ -50,7 +50,7 @@ key `(node_id, instance)`.
 
 ### Database
 
-1. [ ] Obtain approval before changing protected `apps/hub/src/db/schema/`.
+1. [ ] Verify that the planned protected-path changes are covered by approved Spec 001; no additional approval is needed.
 2. [ ] Write failing AT-D05 through AT-D11 database tests before schema and
        repository code, including concurrent revision and retention fixtures.
 3. [ ] Add the three schema definitions/migration and
