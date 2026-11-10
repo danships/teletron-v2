@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { decodeSessionMessage } from './session-messages.js';
-import { scene } from './scene.test.js';
+import { scene } from './scene.fixture.js';
 
 const generation = '00000000-0000-4000-8000-000000000001';
 const address = 'livingroom/hdmi';

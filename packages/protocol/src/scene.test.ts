@@ -1,60 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { scene } from './scene.fixture.js';
 import { assertSceneTarget, sceneSchema } from './scene.js';
-
-export const scene = {
-  target: 'web',
-  theme: 'dark',
-  grid: { rows: 1, columns: 3, gap: 'small', padding: 'medium' },
-  modules: [
-    {
-      id: 'clock',
-      mode: 'local',
-      placement: { row: 1, column: 1, rowSpan: 1, columnSpan: 1 },
-      component: {
-        type: 'text',
-        value: { type: 'clock', format: 'HH:mm' },
-        size: 'hero',
-        weight: 'bold',
-        tone: 'default',
-      },
-    },
-    {
-      id: 'weather',
-      mode: 'data',
-      source: 'weather.home',
-      placement: { row: 1, column: 2, rowSpan: 1, columnSpan: 1 },
-      component: {
-        type: 'stack',
-        direction: 'column',
-        alignment: 'center',
-        gap: 'small',
-        children: [
-          { type: 'icon', value: { type: 'literal', value: 'weather-clear' } },
-          {
-            type: 'big-number',
-            value: { type: 'data', path: 'temperature.current' },
-            size: 'large',
-            weight: 'regular',
-            tone: 'accent',
-          },
-        ],
-      },
-    },
-    {
-      id: 'followers',
-      mode: 'data',
-      source: 'youtube.followers',
-      placement: { row: 1, column: 3, rowSpan: 1, columnSpan: 1 },
-      component: {
-        type: 'text',
-        value: { type: 'literal', value: '<script>text</script>' },
-        size: 'small',
-        weight: 'regular',
-        tone: 'muted',
-      },
-    },
-  ],
-};
 
 describe('web scenes AT-M01–M07', () => {
   it('accepts the complete scene and preserves markup as text', () => {
@@ -108,6 +54,7 @@ describe('web scenes AT-M01–M07', () => {
       ).toBe(false);
   });
   it('reports target mismatch', () => expect(assertSceneTarget({ target: 'pixel' }, 'display:web').ok).toBe(false));
+  it('rejects a non-web capability', () => expect(assertSceneTarget({ target: 'web' }, 'other').ok).toBe(false));
   it('bounds tree depth and child count', () => {
     let component: unknown = scene.modules[0]?.component;
     for (let index = 0; index < 20; index++)
