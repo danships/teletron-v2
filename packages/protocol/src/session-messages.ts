@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { displayMessageSchemas } from './display-messages.js';
 import { decodeJsonMessage, envelopeSchema, type Envelope } from './envelope.js';
 import { parseFailure, type ParseResult } from './errors.js';
 import { capabilityAddressSchema, nodeIdSchema, nodeNameSchema, sessionIdSchema } from './identity.js';
@@ -66,6 +67,7 @@ const sessionMessageSchemas = [
   sessionReadyMessageSchema,
   pingMessageSchema,
   pongMessageSchema,
+  ...displayMessageSchemas,
 ] as const;
 
 export const sessionMessageSchema = z.discriminatedUnion('type', sessionMessageSchemas);
@@ -74,7 +76,8 @@ export type SessionMessage =
   | z.infer<typeof welcomeMessageSchema>
   | z.infer<typeof sessionReadyMessageSchema>
   | z.infer<typeof pingMessageSchema>
-  | z.infer<typeof pongMessageSchema>;
+  | z.infer<typeof pongMessageSchema>
+  | z.infer<(typeof displayMessageSchemas)[number]>;
 
 const knownTypes = new Set<string>(sessionMessageSchemas.map((schema) => schema.shape.type.value));
 const ignoredUnknownSuffixes = ['.event', '.update', '.state', '.ack'];

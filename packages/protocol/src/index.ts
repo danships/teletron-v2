@@ -70,3 +70,30 @@ export {
   protocolVersionSchema,
   type ProtocolVersion,
 } from './version.js';
+
+export {
+  alignmentSchema,
+  componentSchema,
+  iconTokenSchema,
+  leafValueSchema,
+  spacingSchema,
+  type Component,
+  type IconToken,
+  type LeafValue,
+} from './components.js';
+export { assertSceneTarget, moduleIdSchema, moduleSchema, sceneSchema, type Scene, type SceneModule } from './scene.js';
+export {
+  dataRevisionSchema,
+  displayDataUpdateBodySchema,
+  displayMessageSchema,
+  displayMessageSchemas,
+  displayResyncBodySchema,
+  displaySceneSetBodySchema,
+  displayStateBodySchema,
+  type DataRevision,
+  type DisplayDataUpdateBody,
+  type DisplayMessage,
+  type DisplayResyncBody,
+  type DisplaySceneSetBody,
+  type DisplayStateBody,
+} from './display-messages.js';
