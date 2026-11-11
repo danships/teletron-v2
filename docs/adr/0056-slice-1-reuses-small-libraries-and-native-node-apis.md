@@ -43,8 +43,9 @@ TypeScript type inference and JSON Schema export from one definition.
   process and its kiosk browser. Do not add React, a UI framework or a bundler.
 - Use `happy-dom` only as a development dependency for Vitest DOM tests. Do not
   add a browser automation framework in this slice.
-- Use `crypto.randomUUID` for IDs and `crypto.randomBytes` for node tokens. Do
-  not add a ULID package.
+- Use `crypto.randomUUID` for public node/token IDs and `crypto.randomBytes` for
+  node tokens. SuperSave storage IDs remain internal (proposed ADR-057). Do not
+  add a ULID package.
 
 ## Consequences
 

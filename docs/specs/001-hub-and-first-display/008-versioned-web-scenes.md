@@ -15,34 +15,29 @@ write path.
 
 ## Data Model
 
-### `scenes`
+### SuperSave documents
 
-Stable scene identity with UUID `id`, unique `name` and UTC `created_at`.
+Use the native document model defined in the parent spec and ADR-057. A `scenes`
+entity has a SuperSave storage `id`, immutable application-unique `name`, UTC
+`created_at` and embedded `versions`. Each immutable version has an opaque `id`,
+positive `version`, validated JSON `spec` and UTC `created_at`.
 
-### `scene_versions`
+Assignments are embedded in node documents, keyed by capability instance. Each
+stores scene `scene_id`, `scene_version_id`, positive monotonic `revision` and UTC
+`updated_at`. References and uniqueness are checked inside the sole hub's command
+queue. No separate version/assignment tables, composite SQL keys, foreign keys or
+custom migrations are required. Initialize through SuperSave's repository API.
 
-Immutable versions with UUID `id`, `scene_id` foreign key, positive `version`,
-validated JSON `spec`, UTC `created_at` and unique `(scene_id, version)`.
-
-### `scene_assignments`
-
-Current direct assignment with `node_id`, capability `instance`,
-`scene_version_id`, positive monotonic `revision` and UTC `updated_at`; primary
-key `(node_id, instance)`.
-
-**Relationships**
-
-- `scene_versions.scene_id` → `scenes.id` — many versions to one scene; restrict
-  deletion.
-- `scene_assignments.node_id` → `nodes.id` — many assignments to one node;
-  restrict deletion.
-- `scene_assignments.scene_version_id` → `scene_versions.id` — many assignments
-  to one immutable version; restrict deletion.
-
-**Migration strategy**
-
-- Additive migration. Scene apply commits version and assignment together.
-  Rollback does not destroy authored versions.
+Save a new version before its assignment and publish only after assignment saves.
+Interruption may leave an unassigned version; retry reuses a matching latest
+version. An uncertain assignment write requires rereading storage and reconciling
+the current display before returning or allowing a no-op retry: enqueue the saved
+scene and latest snapshots at the saved revision, or close the session so resume
+replays database truth. If rereading fails, close the session and report a safe
+failure. Recovery never creates another version or increments the revision. There is no
+cross-document atomicity or rollback. Pruning runs after assignment persistence,
+rechecks all references in the same queue, and may safely leave extra history on
+failure. Do not expose scene/node deletion APIs.
 
 ---
 
@@ -52,16 +47,18 @@ key `(node_id, instance)`.
 
 1. [ ] Verify that the planned protected-path changes are covered by approved Spec 001; no additional approval is needed.
 2. [ ] Write failing AT-D05 through AT-D11 database tests before schema and
-       repository code, including concurrent revision and retention fixtures.
-3. [ ] Add the three schema definitions/migration and
+       repository code, including overlapping commands, interrupted writes, retry and retention fixtures.
+3. [ ] Add the scene entity and node assignment document definitions and
        `apps/hub/src/scenes/scene-repository.ts` for lookup, immutable version
        creation, assignment and current-state reads.
-4. [ ] Implement `applyScene` as one transaction: parse through the shared scene
+4. [ ] Implement `applyScene` inside the shared hub command queue: parse through the shared scene
        schema, verify node and exact granted `display:web` instance, verify target,
        compare canonical parsed JSON, create the next version only on a semantic
        change, and increment the display assignment revision.
-5. [ ] After a real update in the same transaction, prune only unassigned
-       versions older than 30 days and outside the newest 20 for that scene.
+5. [ ] After a saved assignment, prune only unassigned versions older than 30
+       days and outside the newest 20. Recheck every stored assignment before
+       pruning. Cleanup failure retains extra history and reports the assignment
+       as saved; do not undo it or retry creating an already saved version.
 
 ### Backend
 
@@ -70,9 +67,9 @@ key `(node_id, instance)`.
 2. [ ] Extend PR5 control schemas/client/CLI with one `scene.apply` command that
        accepts a local JSON file, scene name, node name and instance. Validate in
        the CLI and again in the live hub; never let the client write the DB.
-3. [ ] Add `apps/hub/src/scenes/scene-service.ts` to call the transaction, obtain
+3. [ ] Add `apps/hub/src/scenes/scene-service.ts` to call the queued persistence operation, obtain
        current module snapshots from an injected provider (empty until PR10),
-       and notify only the current authenticated matching display after commit.
+       and notify only the current authenticated matching display after assignment persistence.
 4. [ ] Add `apps/hub/src/sessions/display-session.ts` to compare hello resume
        state, send a full `display.scene.set` only when needed, replay newer
        snapshots, then send `session.ready` last.
@@ -80,7 +77,9 @@ key `(node_id, instance)`.
        never lowers server revisions; resync returns the full current state only
        for the session's own granted address and returns `FORBIDDEN` otherwise.
 6. [ ] Ensure a semantically identical apply returns current version/assignment
-       IDs without a WebSocket send. A changed apply enqueues exactly one higher
+       IDs without a WebSocket send only when delivery of the current assignment is
+       already reconciled. After an uncertain assignment write, reconcile delivery
+       as above before returning, including on an equal retry. A changed apply enqueues exactly one higher
        scene revision before the control command reports success.
 7. [ ] Run database, CLI and WebSocket tests, then `pnpm check`.
 
@@ -88,23 +87,31 @@ key `(node_id, instance)`.
 
 ## Acceptance Tests Covered
 
-- **AT-D05:** Given an empty database, when the scene migration runs, then scene,
-  version and assignment tables match this spec.
+- **AT-D05:** Given an empty database, when SuperSave initializes, then scene
+  documents, embedded versions and node assignments survive reconnect.
 - **AT-D06:** Given a new valid scene, when applied, then immutable version 1 and
-  an assignment revision are committed together.
+  an assignment revision are saved in order before publication. Failure between
+  writes retains the prior assignment; retry reuses the saved matching latest version.
 - **AT-D07:** Given an updated valid scene, when applied, then a new immutable
   version and higher assignment revision are created without modifying the
   earlier version.
 - **AT-D08:** Given invalid scene JSON, an unknown node, an ungranted display
   instance or a target mismatch, when apply runs, then nothing is written.
-- **AT-D09:** Given an attempted delete of a referenced node or scene version,
-  when executed, then foreign-key restrictions reject it.
+- **AT-D09:** Given an assignment to an absent scene/version, when attempted
+  through the hub boundary, then reference validation rejects it before writing.
+  Node/scene deletion APIs and SQL foreign-key enforcement are outside scope.
 - **AT-D10:** Given more than 20 scene versions across more than 30 days, when
   another version is applied, then only unassigned versions outside both
-  retention windows are pruned and all assigned versions remain.
+  retention windows are pruned and all assigned versions remain. Prune failure retains the saved
+  assignment and extra history.
 - **AT-D11:** Given scene JSON semantically equal to the assigned current version,
   when apply runs, then it returns the current IDs without adding a version,
-  changing the assignment revision or sending a scene update.
+  changing the assignment revision or sending a scene update when delivery is
+  already reconciled. If an assignment write saves but its response is lost before
+  notification, reread and enqueue the saved scene and snapshots at the existing
+  revision, or close the session for resume recovery, before returning or allowing
+  an equal retry to complete as a no-op. Test a successful reread, a failed reread
+  and an equal retry; no case may leave an online display indefinitely stale.
 - **AT-S01:** Given a ready display whose resume revision differs, when the
   session restores, then the hub sends the full assigned scene and latest module
   snapshots before `session.ready`.
@@ -124,9 +131,10 @@ key `(node_id, instance)`.
 
 ## Edge Cases & Error Handling
 
-- **Concurrent applies:** Lock the assignment/scene version sequence so committed
-  versions and assignment revisions remain strictly monotonic.
-- **Online notification fails after commit:** Return committed IDs, close or
+- **Concurrent applies:** Serialize the full read/check/write operation in the
+  shared hub command queue so saved versions and revisions remain monotonic.
+  Multiple writers and direct database edits are unsupported.
+- **Online notification fails after persistence:** Return saved IDs, close or
   resync the session, and let resume replay database truth.
 - **No assignment on resume:** Send `session.ready` without manufacturing a
   scene; return `NOT_FOUND` to explicit resync.

@@ -29,7 +29,7 @@ Everything you need is in this repo. Read these before you start:
 3. Do a reuse-vs-build round. Record it as an ADR with status `Proposed`.
 4. Write the acceptance tests first. Do not weaken, skip or remove them.
 5. Implement inside the spec. Do not touch non-goals.
-6. Run `pnpm check`. Commit only when asked.
+6. Run `pnpm check`.
 
 ## Plan approval and protected paths
 
