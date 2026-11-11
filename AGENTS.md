@@ -30,6 +30,17 @@ Everything you need is in this repo. Read these before you start:
 4. Write the acceptance tests first. Do not weaken, skip or remove them.
 5. Implement inside the spec. Do not touch non-goals.
 6. Run `pnpm check`.
+7. Commit, push, and create or update the pull request. Verify the remote handoff below before ending the run.
+
+## Agent completion and remote handoff
+
+- An implementation request authorizes committing, pushing the assigned branch and opening a PR to `main`. Use the assigned branch; for an existing PR, update that PR. Do not merge unless Dan asks.
+- Continue from investigation through tests, implementation and PR creation. Reading the plan, creating a local branch or announcing next steps is not completion. A small compatible interface addition is implementation work, not a reason to stop.
+- Check GitHub authentication and remote access before substantial work. Commit and push coherent progress during long runs so an ephemeral workspace is not the only copy. Never commit secrets or unrelated user changes.
+- Before reporting success, push the final commit and verify with GitHub that the PR is open, targets `main`, uses the assigned branch and has that commit as its head. A successful local commit, push attempt or PR-create attempt is not sufficient evidence. Reuse an existing PR rather than creating a duplicate.
+- If blocked by a design decision, approval requirement or failing checks that cannot be resolved within scope, preserve safe progress on the remote branch and open or update a draft PR with the `blocked` label. Describe the blocker, checks run, remaining work and decision needed. If no implementation changes exist, commit a concise blocker report under `docs/blockers/` to make the draft reviewable; do not change the approved spec or acceptance criteria. A draft is an incomplete handoff, not success.
+- If authentication, network access or GitHub prevents that handoff, report the exact failed operation and recovery details (branch, commit SHA, unpushed files and blocker). Do not claim a PR exists or the task is complete. Do not discard local work.
+- The final response must include the verified PR URL, pushed commit SHA, check results and any remaining blockers. If no PR could be created, explicitly state **INCOMPLETE — no PR** and provide the recovery details above. An ordinary final response or an orchestrator's `done` status does not establish completion.
 
 ## Plan approval and protected paths
 
