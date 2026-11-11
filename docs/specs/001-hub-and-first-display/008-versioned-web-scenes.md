@@ -30,7 +30,11 @@ custom migrations are required. Initialize through SuperSave's repository API.
 
 Save a new version before its assignment and publish only after assignment saves.
 Interruption may leave an unassigned version; retry reuses a matching latest
-version. An uncertain write result requires rereading storage. There is no
+version. An uncertain assignment write requires rereading storage and reconciling
+the current display before returning or allowing a no-op retry: enqueue the saved
+scene and latest snapshots at the saved revision, or close the session so resume
+replays database truth. If rereading fails, close the session and report a safe
+failure. Recovery never creates another version or increments the revision. There is no
 cross-document atomicity or rollback. Pruning runs after assignment persistence,
 rechecks all references in the same queue, and may safely leave extra history on
 failure. Do not expose scene/node deletion APIs.
@@ -41,7 +45,7 @@ failure. Do not expose scene/node deletion APIs.
 
 ### Database
 
-1. [ ] Obtain approval before changing protected `apps/hub/src/db/schema/`.
+1. [ ] Verify that the planned protected-path changes are covered by approved Spec 001; no additional approval is needed.
 2. [ ] Write failing AT-D05 through AT-D11 database tests before schema and
        repository code, including overlapping commands, interrupted writes, retry and retention fixtures.
 3. [ ] Add the scene entity and node assignment document definitions and
@@ -73,7 +77,9 @@ failure. Do not expose scene/node deletion APIs.
        never lowers server revisions; resync returns the full current state only
        for the session's own granted address and returns `FORBIDDEN` otherwise.
 6. [ ] Ensure a semantically identical apply returns current version/assignment
-       IDs without a WebSocket send. A changed apply enqueues exactly one higher
+       IDs without a WebSocket send only when delivery of the current assignment is
+       already reconciled. After an uncertain assignment write, reconcile delivery
+       as above before returning, including on an equal retry. A changed apply enqueues exactly one higher
        scene revision before the control command reports success.
 7. [ ] Run database, CLI and WebSocket tests, then `pnpm check`.
 
@@ -100,7 +106,12 @@ failure. Do not expose scene/node deletion APIs.
   assignment and extra history.
 - **AT-D11:** Given scene JSON semantically equal to the assigned current version,
   when apply runs, then it returns the current IDs without adding a version,
-  changing the assignment revision or sending a scene update.
+  changing the assignment revision or sending a scene update when delivery is
+  already reconciled. If an assignment write saves but its response is lost before
+  notification, reread and enqueue the saved scene and snapshots at the existing
+  revision, or close the session for resume recovery, before returning or allowing
+  an equal retry to complete as a no-op. Test a successful reread, a failed reread
+  and an equal retry; no case may leave an online display indefinitely stale.
 - **AT-S01:** Given a ready display whose resume revision differs, when the
   session restores, then the hub sends the full assigned scene and latest module
   snapshots before `session.ready`.

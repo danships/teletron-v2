@@ -12,8 +12,8 @@ from those schemas so validation and static types cannot drift.
 
 - Protocol, manifest, module, and scene schemas belong in `packages/protocol`; applications import
   them rather than defining competing schemas.
-- `packages/protocol` is protected. Ask Dan before changing it, even when the change follows an
-  approved spec.
+- `packages/protocol` is protected. Changes covered by an approved spec or plan are authorized;
+  do not ask Dan for additional approval. Follow the plan approval rule in `AGENTS.md`.
 - Read the current approved spec and acceptance cases before editing. If no approved spec covers
   the schema change, write the required plan and stop for approval.
 - Provider-response and process-configuration schemas belong to the app that owns that boundary

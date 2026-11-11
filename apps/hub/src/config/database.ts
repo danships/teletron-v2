@@ -1,10 +1,9 @@
 export function parseDatabaseUrl(value: string | undefined): string {
   try {
-    if (!value) throw new Error('Invalid DATABASE_URL');
-    const url = new URL(value);
-    if (url.protocol !== 'mysql:' || !url.hostname || url.pathname.length < 2) throw new Error('Invalid DATABASE_URL');
-    return value;
+    const url = new URL(value ?? '');
+    if (url.protocol === 'mysql:' && url.hostname && url.pathname.length > 1) return url.href;
   } catch {
-    throw new Error('Invalid DATABASE_URL');
+    // Report invalid configuration without exposing credentials.
   }
+  throw new Error('Invalid DATABASE_URL');
 }

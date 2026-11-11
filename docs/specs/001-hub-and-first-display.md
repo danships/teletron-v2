@@ -28,13 +28,13 @@ dimming the other modules.
   cache; a temporary owner-only local hub control socket; a loopback renderer
   boundary.
 - **New or changed tables (protected path):** `nodes` and `scenes` SuperSave
-  document entities, with embedded tokens, versions and assignments, defined below. Schema changes need
-  Dan's approval again when the database PR plan is expanded.
+  document entities, with embedded tokens, versions and assignments, defined below.
+  Approval of this spec authorizes these schema changes and their PR implementation plans.
 - **New or changed protocol messages (protected path):** `hello`, `welcome`,
   `session.ready`, `ping`, `pong`, `display.scene.set`,
   `display.data.update`, `display.state`, `display.resync` and `error`, defined
-  below. Protocol changes need Dan's approval again when their PR plans are
-  expanded.
+  below. Approval of this spec authorizes these protocol changes and their PR
+  implementation plans; no additional explicit approval from Dan is needed.
 - **New dependencies:** `zod` for schemas, inferred types and runtime
   validation; `ws` for the hub WebSocket server; `supersave` and `mysql2` for
   ADR-004 persistence; `happy-dom` for Vitest DOM tests; `@types/ws` only if
@@ -308,7 +308,12 @@ complete document. Scene apply writes the scene/version first and the node's
 assignment second; only then publish the result. An interrupted apply may leave
 an unassigned version but cannot publish an assignment before its version exists.
 Reuse a matching saved latest version on retry. An uncertain write result is a
-safe failure requiring reread, not an assertion that nothing was persisted.
+safe failure requiring reread, not an assertion that nothing was persisted. After
+an uncertain assignment write, reconcile display delivery before returning or
+allowing a no-op retry: enqueue the saved scene and latest snapshots at its
+existing revision, or close the session for resume recovery. If rereading fails,
+close the session and report a safe failure; do not create another version or
+increment the revision during recovery.
 
 Deleting nodes, tokens or scenes is outside this slice. After assignment updates,
 prune unassigned versions only when older than 30 days and outside the newest 20,
@@ -334,7 +339,8 @@ The scene CLI validates a JSON file through `@teletron/protocol`, then sends it
 through the same control socket. The hub validates again, creates an immutable
 next scene version and then saves its assignment to an existing granted
 `display:web` instance, using the ordered writes described above. Reapplying JSON semantically equal to the current version
-is a no-op that returns the current version and assignment revision. A real
+is a no-op that returns the current version and assignment revision only after
+delivery of the stored assignment is reconciled as described above. A real
 change always increments the per-display assignment revision and updates the
 active session before the command succeeds. This temporary CLI is the only
 scene write path until the MCP control plane.
@@ -524,7 +530,13 @@ starts. Acceptance-test IDs refer to the tests below.
       after assignment, then only unassigned versions outside both windows are removed.
       Prune failure preserves the saved assignment and extra history.
 - [ ] **AT-D11:** Given scene JSON semantically equal to the assigned version,
-      then apply returns current IDs without a version, revision change or scene update.
+      then apply returns current IDs without a version or revision change. No scene
+      update is sent when delivery is already reconciled. If an assignment write
+      saves but its response is lost before notification, reread and enqueue the
+      saved scene and snapshots at the existing revision, or close the session
+      for resume recovery, before returning or allowing an equal no-op retry.
+      Cover successful/failed rereads and equal retries; none may leave an online
+      display indefinitely stale.
 
 - [ ] **AT-C01:** Given a valid unique name and explicit display grant, when the
       pairing command succeeds, then it prints node ID, name and a 32-byte

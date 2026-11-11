@@ -6,9 +6,7 @@ export class NodeRepository {
   constructor(private readonly repository: Repository<NodeRecord>) {}
 
   private run<T>(command: () => Promise<T>): Promise<T> {
-    const result = this.queue.then(command).catch(() => {
-      throw new Error('Persistence command failed');
-    });
+    const result = this.queue.then(command);
     this.queue = result.then(
       () => undefined,
       () => undefined
@@ -21,7 +19,7 @@ export class NodeRepository {
     return rows.map((row) => {
       const parsed = nodeSchema.safeParse(row);
       if (!parsed.success) throw new Error('Invalid stored node');
-      return parsed.data as NodeRecord;
+      return parsed.data;
     });
   }
 
@@ -67,7 +65,7 @@ export class NodeRepository {
       const token = node?.tokens.find((entry) => entry.id === tokenId);
       if (!node || !token || token.revoked_at !== null) throw new Error('Token unavailable');
       token.revoked_at = timestamp;
-      await this.repository.update(nodeSchema.parse(node) as NodeRecord);
+      await this.repository.update(nodeSchema.parse(node));
     });
   }
 
@@ -83,7 +81,7 @@ export class NodeRepository {
         rows.some((row) => row.tokens.some((entry) => entry.token_hash === token.token_hash || entry.id === token.id))
       )
         throw new Error('Token conflict');
-      await this.repository.update(nodeSchema.parse({ ...node, tokens: [...node.tokens, token] }) as NodeRecord);
+      await this.repository.update(nodeSchema.parse({ ...node, tokens: [...node.tokens, token] }));
     });
   }
 }

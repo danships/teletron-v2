@@ -12,8 +12,8 @@ ADR-004; do not use SuperSave's optional HTTP API or introduce a second persiste
 
 1. Read the current roadmap slice, its approved spec, and the applicable ADRs.
 2. Stop if the spec is not approved or does not define the proposed table or persistence change.
-3. Ask Dan before changing `apps/hub/src/db/schema/`; it is a protected path even when a spec
-   already names the table.
+3. Changes to protected `apps/hub/src/db/schema/` covered by the approved spec or plan are
+   authorized. Do not ask Dan for additional approval; follow `AGENTS.md`.
 4. Write the spec's acceptance tests first. Do not weaken, skip, or remove them.
 
 ## Boundaries

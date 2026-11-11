@@ -11,7 +11,7 @@ export const tokenSchema = z.strictObject({
 });
 export const nodeSchema = z
   .strictObject({
-    id: z.string().optional(),
+    id: z.string().exactOptional(),
     node_id: nodeIdSchema,
     name: nodeNameSchema,
     created_at: timestamp,
@@ -20,5 +20,5 @@ export const nodeSchema = z
   .refine((node) => node.tokens.filter((token) => token.revoked_at === null).length <= 1)
   .refine((node) => new Set(node.tokens.map((token) => token.id)).size === node.tokens.length)
   .refine((node) => new Set(node.tokens.map((token) => token.token_hash)).size === node.tokens.length);
-export type NodeRecord = Omit<z.infer<typeof nodeSchema>, 'id'> & { id?: string };
+export type NodeRecord = z.infer<typeof nodeSchema>;
 export type TokenRecord = z.infer<typeof tokenSchema>;

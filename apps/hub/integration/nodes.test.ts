@@ -1,3 +1,4 @@
+import { parseTestDatabaseUrl } from './test-database-url.js';
 import { randomUUID } from 'node:crypto';
 import { createConnection } from 'mysql2/promise';
 import { SuperSave } from 'supersave';
@@ -5,10 +6,7 @@ import { nodeEntity } from '../src/db/schema/node.js';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createDatabase } from '../src/db/database.js';
 
-const base = process.env['DATABASE_URL'];
-if (!base || !base.startsWith('mysql://') || !new URL(base).pathname.includes('test')) {
-  throw new Error('An explicit test MySQL DATABASE_URL is required');
-}
+const base = parseTestDatabaseUrl(process.env['DATABASE_URL']);
 const databaseName = `teletron_test_${randomUUID().replaceAll('-', '')}`;
 const url = new URL(base);
 url.pathname = `/${databaseName}`;

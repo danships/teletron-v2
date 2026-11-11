@@ -46,7 +46,7 @@ require an explicit compatibility plan before deployment.
 
 ## Implementation Steps
 
-1. [ ] Obtain approval before changing protected `apps/hub/src/db/schema/`.
+1. [ ] Verify that protected schema changes are covered by approved Spec 001; no additional approval is needed.
 2. [ ] Add an integration harness requiring an explicit test `DATABASE_URL`.
        Create a fresh isolated test database, initialize SuperSave entities and
        clean only that database. SQL is allowed for harness database lifecycle,

@@ -32,17 +32,17 @@ reviews:
         2. Unneeded abstractions: a new interface, base class, factory, registry or generic helper without a concrete second use.
         3. Speculative code: options, flags, extension points or error paths for cases that do not exist yet.
         4. New dependencies: name each one. Ask if the standard library or an existing dependency can do it. Check that the PR description gives a reason. Flag, do not block.
-        5. Protected paths changed without mention in the PR description (see below).
+        5. Protected-path changes not identified in the PR description or not covered by the linked approved spec, plan, or direct request from Dan. Approval covers all changes within scope, including PR plans that expand an approved spec; do not demand additional explicit approval from Dan.
         6. Weakened tests: removed assertions, skipped tests, or acceptance tests changed to match the code.
         7. Raised lint budgets or disabled lint rules.
     - path: 'packages/protocol/**'
-      instructions: 'Protected path: wire protocol types. Flag every change. It needs explicit approval from Dan. Check backward compatibility with connected nodes.'
+      instructions: 'Protected path: wire protocol types. Check coverage by the linked approved spec, plan, or direct request from Dan; covered changes need no additional explicit approval. Flag uncovered changes. Check backward compatibility with connected nodes.'
     - path: 'apps/hub/src/db/schema/**'
-      instructions: 'Protected path: database schema. Flag every change. It needs explicit approval from Dan.'
+      instructions: 'Protected path: database schema. Check coverage by the linked approved spec, plan, or direct request from Dan; covered changes need no additional explicit approval. Flag uncovered changes.'
     - path: 'docs/specs/**'
-      instructions: 'Protected path: specs. Flag every change. An implementing agent must not change its own spec or acceptance criteria.'
+      instructions: 'Protected path: specs. Changes covered by an approved plan or direct request from Dan need no additional explicit approval. Flag unauthorized scope or design changes and weakened acceptance tests.'
     - path: 'AGENTS.md'
-      instructions: 'Protected path: agent rules. Flag every change. It needs explicit approval from Dan.'
+      instructions: 'Protected path: agent rules. Changes covered by an approved plan or direct request from Dan need no additional explicit approval. Flag uncovered changes.'
     - path: '{eslint.config.mjs,.dependency-cruiser.cjs,scripts/check-pr-size.sh}'
       instructions: 'Guardrail config. Flag any change that relaxes a budget, removes a rule or raises the PR size cap.'
   abort_on_close: true

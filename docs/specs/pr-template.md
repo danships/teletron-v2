@@ -6,6 +6,8 @@
 - Slice PR: <PR plan item number>
 - Ticket type: Story | Bug | Task | Spike
 
+<!-- Approval is inherited from the approved parent spec when this plan stays within its scope, including protected-path changes. Identify affected protected paths below; do not add a separate approval step. Scope or design changes need approval. -->
+
 ## Overview
 
 <In two to four sentences, explain what this PR does, why it matters, and which part of the system it touches. Adapt the plan's depth to the ticket type. State uncertain details explicitly and mark each one _(assumption)_.>

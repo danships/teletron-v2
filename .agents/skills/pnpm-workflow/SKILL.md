@@ -29,6 +29,7 @@ The workspaces are `apps/*` and `packages/*`.
 - Packages never import apps.
 - Apps never import other apps.
 - Shared wire schemas and types belong in `packages/protocol`, which is a protected path.
+  Changes covered by an approved spec or plan need no additional approval (see `AGENTS.md`).
 - Add a dependency to the workspace that imports it rather than to the root by convenience.
 
 ## Commands

@@ -1,14 +1,14 @@
 # Specs
 
-Each roadmap slice has one spec in this folder (ADR-041). This is a protected path. Dan approves every change.
+Each roadmap slice has one spec in this folder (ADR-041). This is a protected path. Changes covered by an approved spec, plan, or direct request from Dan need no additional approval (see [AGENTS.md](../../AGENTS.md#plan-approval-and-protected-paths)).
 
 ## Process
 
 1. The agent writes the slice plan in a draft spec with status `Proposed` using [template.md](template.md).
 2. Dan approves the plan. The status changes to `Approved`.
-3. Before implementing each PR in the approved breakdown, the agent writes a complete implementation plan in the PR description using [pr-template.md](pr-template.md).
+3. Before implementing each PR in the approved breakdown, the agent writes a complete implementation plan in the PR description using [pr-template.md](pr-template.md). Plans that add implementation detail within the approved scope inherit approval, including protected-path changes; do not ask Dan again.
 4. The agent writes the acceptance tests covered by that PR first.
-5. The agent implements the PR. The agent does not change the spec or weaken the acceptance tests.
+5. The agent implements the PR. The agent only changes the spec when authorized by an approved plan or direct request from Dan, and does not weaken the acceptance tests.
 6. When the full slice is merged, the spec status changes to `Done`.
 
 ## File names

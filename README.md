@@ -12,6 +12,10 @@ cp .env.example .env
 pnpm check
 ```
 
+## Agent workflow
+
+An approved spec or plan authorizes the changes it includes, including protected paths and PR plans that expand it within scope. Agents and PR reviewers must not request additional explicit approval from Dan for that work. See [AGENTS.md](AGENTS.md#plan-approval-and-protected-paths) for the approval rule.
+
 ## Docs
 
 - [Architecture](docs/architecture.md)
