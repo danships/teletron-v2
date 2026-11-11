@@ -14,3 +14,7 @@
 - [ ] Acceptance tests are not weakened or removed.
 - [ ] Protected-path changes are identified and covered by the linked approved spec, plan, or direct request from Dan.
 - [ ] `pnpm check` passes.
+
+## Agent handoff
+
+<!-- Agents: follow AGENTS.md#agent-completion-and-remote-handoff. Verify the open PR's base, branch and head SHA on GitHub after the final push. A blocked draft is incomplete; record its blocker and remaining work. Include the verified PR URL, pushed SHA and check results in your final response. -->
