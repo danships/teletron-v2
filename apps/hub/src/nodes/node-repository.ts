@@ -69,7 +69,7 @@ export class NodeRepository {
     });
   }
 
-  issue(nodeId: string, input: TokenRecord): Promise<void> {
+  issue(nodeId: string, input: TokenRecord): Promise<string> {
     return this.run(async () => {
       const token = tokenSchema.parse(input);
       const rows = await this.read();
@@ -82,6 +82,7 @@ export class NodeRepository {
       )
         throw new Error('Token conflict');
       await this.repository.update(nodeSchema.parse({ ...node, tokens: [...node.tokens, token] }));
+      return node.name;
     });
   }
 }
