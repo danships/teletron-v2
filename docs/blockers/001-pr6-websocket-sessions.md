@@ -1,4 +1,4 @@
-# S1-PR6 implementation completed; PR metadata handoff pending
+# S1-PR6 blocker resolved
 
 The original blocker was missing implementation, not a design decision. PR #8
 contained only transport dependencies. The approved [PR6 plan](../specs/001-hub-and-first-display/006-websocket-node-sessions.md)
@@ -18,8 +18,8 @@ Verification: Node.js 24, `pnpm check` (83 tests), production dependency audit,
 and the unchanged 600-line PR-size check. The in-process session tests use a
 memory-backed SuperSave repository boundary; they do not require MySQL.
 
-Git read/write access works, but the environment has no GitHub CLI or API login.
-The remaining handoff is to replace the stale incomplete PR description, remove
-its `blocked` label and mark it ready for review. The implementation and this
-report are preserved on `feat/s001-p006/websocket-node-sessions`. No merge is
-authorized. The final response records the pushed commit and verified PR head.
+GitHub CLI authentication is now available. PR #8's description has been updated
+with the completed implementation and validation results, its `blocked` label
+has been removed, and it is ready for review against `main`. The original
+implementation and authentication blockers are resolved. No merge was performed.
+The final response records the pushed commit and verified PR head.
