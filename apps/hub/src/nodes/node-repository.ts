@@ -39,6 +39,14 @@ export class NodeRepository {
     }
   }
 
+  authenticate(hash: string, accept: (record: { node: NodeRecord; token: TokenRecord }) => void): Promise<void> {
+    return this.run(async () => {
+      const record = await this.findByHash(hash);
+      if (record.status !== 'found') throw new Error('Unauthorized');
+      accept(record);
+    });
+  }
+
   create(input: NodeRecord): Promise<void> {
     return this.run(async () => {
       const node = nodeSchema.parse(input);
