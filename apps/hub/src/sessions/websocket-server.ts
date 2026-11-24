@@ -12,16 +12,11 @@ export function createSessionServer(
   const registry = new SessionRegistry(log);
   const generation = randomUUID();
   let stopping = false;
-  const http = createServer((_request, response) => {
-    response.writeHead(404).end();
-  });
+  const http = createServer((_request, response) => response.writeHead(404).end());
   const ws = new WebSocketServer({ noServer: true, maxPayload: 65_536, perMessageDeflate: false });
   http.on('upgrade', (request, socket, head) => {
-    if (stopping || request.url !== '/ws') {
-      socket.end('HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n');
-      return;
-    }
-    ws.handleUpgrade(request, socket, head, (client) => ws.emit('connection', client));
+    if (stopping || request.url !== '/ws') return socket.end('HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n');
+    return ws.handleUpgrade(request, socket, head, (client) => ws.emit('connection', client));
   });
   ws.on('connection', (socket) => attach(socket, { nodes, registry, generation, log, cleanup: options.cleanup }));
   return {

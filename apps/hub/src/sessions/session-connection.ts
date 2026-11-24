@@ -52,19 +52,12 @@ export function attach(socket: WebSocket, context: Context) {
   }
   socket.on('close', cleanup);
   socket.on('error', () => state.close(4009));
-  socket.on('pong', beat.activity);
-  socket.on('message', (data, binary) => {
-    beat.activity();
-    handle(data, binary, state);
-  });
+  for (const event of ['ping', 'pong', 'message']) socket.on(event, beat.activity);
+  socket.on('message', (data, binary) => handle(data, binary, state));
 }
 function handle(data: RawData, binary: boolean, state: Connection) {
   if (state.closed) return;
   const input = data.toString();
-  if (Buffer.byteLength(input) > state.limit) {
-    state.close(4009);
-    return;
-  }
   if (binary) {
     state.send(errorFrame(state.session ? 'BAD_REQUEST' : 'UNAUTHORIZED'));
     if (!state.session) state.close(4002);

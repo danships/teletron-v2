@@ -3,18 +3,16 @@ import { classifyManifestGrants, decodeSessionMessage, negotiateProtocolVersion 
 import type { NodeRepository } from '../nodes/node-repository.js';
 import { envelope, errorFrame } from './message-router.js';
 import type { Log, Session, SessionRegistry } from './session-registry.js';
-export type Connection = {
+export type Connection = Pick<Session, 'id' | 'close'> & {
   nodes: NodeRepository;
   registry: SessionRegistry;
   log: Log;
-  id: string;
   generation: string;
   session: Session | undefined;
   closed: boolean;
   started: boolean;
   limit: number;
   ready: () => void;
-  close: (code: number) => void;
   send: (message: unknown) => void;
 };
 export async function authenticate(input: string, context: Connection) {
@@ -33,11 +31,12 @@ export async function authenticate(input: string, context: Connection) {
       return;
     }
     const capabilities = classifyManifestGrants(body.manifest, token.grants, node.name);
+    const displayGrants = token.grants.filter((grant) => grant.type === 'display:web');
     const session: Session = {
       id: context.id,
       tokenId: token.id,
       nodeId: node.node_id,
-      addresses: capabilities.granted,
+      displayAddresses: classifyManifestGrants(body.manifest, displayGrants, node.name).granted,
       close: context.close,
     };
     context.session = session;

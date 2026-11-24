@@ -1,7 +1,7 @@
 import { once } from 'node:events';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { welcomeBodySchema } from '@teletron/protocol';
-import { fixture, frame, closeCode, receive, body } from './session.fixture.js';
+import { fixture, frame, closeCode, request } from './session.fixture.js';
 import { ControlQueue } from './control-queue.js';
 import { parseHubPort } from '../config/hub.js';
 
@@ -33,13 +33,11 @@ it('AT-H02 returns only safe unauthorized errors for every credential mismatch',
     { nodeName: 'wrong' },
   ]) {
     const socket = await f.connect();
-    const response = once(socket, 'message');
     const closed = once(socket, 'close');
     const hello = f.hello();
     Object.assign(hello.body, patch);
-    socket.send(JSON.stringify(hello));
     const unauthorized = { code: 'UNAUTHORIZED', message: 'UNAUTHORIZED', retryable: false };
-    expect(await body(response)).toEqual(unauthorized);
+    expect(await request(socket, hello).then((message) => message.body)).toEqual(unauthorized);
     expect(await closeCode(closed)).toBe(4002);
   }
   await f.nodes.revoke(f.node.node_id, f.credential.record.id, new Date().toISOString());
@@ -47,11 +45,9 @@ it('AT-H02 returns only safe unauthorized errors for every credential mismatch',
 });
 it('AT-H03/H04 welcomes canonical identity and exact grants, denying scope escalation', async () => {
   const socket = await f.connect();
-  const response = once(socket, 'message');
   const hello = f.hello();
   hello.body.manifest.capabilities.push({ ...hello.body.manifest.capabilities[1]!, instance: 'shared' });
-  socket.send(JSON.stringify(hello));
-  const welcome = welcomeBodySchema.parse(await body(response));
+  const welcome = await request(socket, hello).then((message) => welcomeBodySchema.parse(message.body));
   expect(welcome).toMatchObject({
     nodeId: f.node.node_id,
     nodeName: 'pi',
@@ -59,7 +55,12 @@ it('AT-H03/H04 welcomes canonical identity and exact grants, denying scope escal
     heartbeat: { intervalMs: 10_000, timeoutMs: 25_000 },
     capabilities: { granted: ['pi/hdmi'], rejected: ['pi/other', 'pi/shared'] },
   });
-  expect(f.registry.current(f.credential.record.id)?.addresses).toEqual(['pi/hdmi']);
+  expect(f.registry.current(f.credential.record.id)?.displayAddresses).toEqual(['pi/hdmi']);
+  f.credential.record.grants[0]!.type = 'sensor:temperature';
+  hello.body.manifest.capabilities.push({ ...hello.body.manifest.capabilities[0]!, type: 'sensor:temperature' });
+  const denied = await f.login(hello);
+  const forbidden = await request(denied, frame('display.resync', { address: 'pi/hdmi' }));
+  expect(forbidden.body).toMatchObject({ code: 'FORBIDDEN' });
 });
 it('AT-H05 installs takeover before old cleanup, with secret-free structured logs', async () => {
   const old = await f.login();
@@ -69,9 +70,9 @@ it('AT-H05 installs takeover before old cleanup, with secret-free structured log
   expect(await closeCode(closed)).toBe(4010);
   expect(f.registry.current(f.credential.record.id)?.id).not.toBe(prior);
   expect(f.cleanup).toHaveBeenCalledTimes(1);
-  expect(f.log).toHaveBeenCalledWith(
-    expect.objectContaining({ event: 'takeover', tokenId: f.credential.record.id, oldSessionId: prior })
-  );
+  const takeover = { event: 'takeover', tokenId: f.credential.record.id, oldSessionId: prior };
+  expect(f.log).toHaveBeenCalledWith(expect.objectContaining(takeover));
+  expect(f.log.mock.calls.map(([entry]) => entry['event'])).toEqual(['present', 'present', 'takeover', 'absent']);
   expect(JSON.stringify(f.log.mock.calls)).not.toContain(f.credential.token);
 });
 it('AT-H06 removes presence and subscriptions immediately at the 25-second timeout', async () => {
@@ -88,6 +89,7 @@ it('AT-H07 keeps sessions alive with frames, transport pongs and JSON ping/pong'
   const socket = await f.login();
   for (const send of [
     () => socket.pong(),
+    () => socket.ping(),
     () => socket.send(JSON.stringify(frame('pong'))),
     () => socket.send(JSON.stringify(frame('ping'))),
   ]) {
@@ -116,23 +118,16 @@ it('AT-H08 bounds unsent controls at 256 and preserves FIFO', () => {
 });
 it('AT-H09 errors on unknown commands, ignores additive notifications and validates known bodies', async () => {
   const socket = await f.login();
+  socket.send(JSON.stringify(frame('display.resync', { address: 'pi/hdmi' })));
   for (const type of ['future.event', 'future.update', 'future.state', 'future.ack'])
     socket.send(JSON.stringify(frame(type)));
-  const reply = once(socket, 'message');
   const command = frame('future.command');
-  socket.send(JSON.stringify(command));
-  expect(await receive(reply)).toMatchObject({
-    type: 'error',
-    ref: command.id,
-    body: { code: 'UNKNOWN_TYPE' },
-  });
-  const invalid = once(socket, 'message');
+  const unknown = { type: 'error', ref: command.id, body: { code: 'UNKNOWN_TYPE' } };
+  expect(await request(socket, command)).toMatchObject(unknown);
   const invalidFrame = frame('display.state');
-  socket.send(JSON.stringify(invalidFrame));
-  expect(await receive(invalid)).toMatchObject({ ref: invalidFrame.id, body: { code: 'BAD_REQUEST' } });
-  const forbidden = once(socket, 'message');
-  socket.send(JSON.stringify(frame('display.resync', { address: 'pi/other' })));
-  expect(await body(forbidden)).toMatchObject({ code: 'FORBIDDEN' });
+  expect(await request(socket, invalidFrame)).toMatchObject({ ref: invalidFrame.id, body: { code: 'BAD_REQUEST' } });
+  const forbidden = await request(socket, frame('display.resync', { address: 'pi/other' }));
+  expect(forbidden.body).toMatchObject({ code: 'FORBIDDEN' });
   expect(f.registry.current(f.credential.record.id)).toBeDefined();
 });
 it('AT-H10 revokes connected sessions through the command boundary', async () => {
@@ -164,15 +159,18 @@ it('serializes a delayed authentication lookup with revocation and prevents resu
 });
 it('closes oversized frames with 4009, unsupported protocols with 4001, and shutdown with 1012', async () => {
   expect(await f.reject('x'.repeat(65_537), true)).toBe(4009);
+  for (const type of ['future.command', 'future.state'])
+    expect(await f.reject({ ...frame(type), v: 2 }, true)).toBe(4001);
   const hello = f.hello();
   hello.body.protocol = '2.0';
   expect(await f.reject(hello)).toBe(4001);
   hello.body.protocol = '1.0';
   hello.body.manifest.limits.maxJsonBytes = 1024;
   const limited = await f.login(hello);
-  const overflow = once(limited, 'close');
-  limited.send('x'.repeat(1025));
-  expect(await closeCode(overflow)).toBe(4009);
+  expect(await request(limited, { ...frame('ping'), padding: 'x'.repeat(2048) })).toMatchObject({ type: 'pong' });
+  hello.body.manifest.limits.maxJsonBytes = 1;
+  await expect(f.login(hello)).rejects.toThrow('Closed 4009');
+  expect(f.registry.current(f.credential.record.id)).toBeUndefined();
   const active = await f.login();
   const shutdown = once(active, 'close');
   await f.close();

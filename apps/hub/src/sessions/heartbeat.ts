@@ -5,9 +5,7 @@ export function heartbeat(ping: () => void, close: (code: number) => void) {
   }, 1000);
   const pulse = setInterval(ping, 10_000);
   return {
-    activity: () => {
-      last = Date.now();
-    },
+    activity: () => (last = Date.now()),
     stop: () => {
       clearInterval(check);
       clearInterval(pulse);

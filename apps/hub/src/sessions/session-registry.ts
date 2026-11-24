@@ -2,7 +2,7 @@ export type Session = {
   id: string;
   tokenId: string;
   nodeId: string;
-  addresses: string[];
+  displayAddresses: string[];
   close: (code: number) => void;
 };
 export type Log = (entry: Record<string, string | number>) => void;
@@ -15,15 +15,10 @@ export class SessionRegistry {
   install(session: Session) {
     const old = this.current(session.tokenId);
     this.sessions.set(session.tokenId, session);
-    this.log({ event: 'present', nodeId: session.nodeId, tokenId: session.tokenId, sessionId: session.id });
+    const identity = { nodeId: session.nodeId, tokenId: session.tokenId, sessionId: session.id };
+    this.log({ event: 'present', ...identity });
     if (old) {
-      this.log({
-        event: 'takeover',
-        nodeId: session.nodeId,
-        tokenId: session.tokenId,
-        sessionId: session.id,
-        oldSessionId: old.id,
-      });
+      this.log({ event: 'takeover', ...identity, oldSessionId: old.id });
       old.close(4010);
     }
   }

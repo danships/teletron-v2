@@ -34,10 +34,9 @@ export async function fixture() {
   await new Promise<void>((resolve) => server.http.listen(0, '127.0.0.1', resolve));
   const address = server.http.address();
   if (!address || typeof address === 'string') throw new Error('No port');
-  const connect = async (path = '/ws') => {
+  const connect = (path = '/ws') => {
     const socket = new WebSocket(`ws://127.0.0.1:${address.port}${path}`, { autoPong: false });
-    await once(socket, 'open');
-    return socket;
+    return once(socket, 'open').then(() => socket);
   };
   const hello = () =>
     frame('hello', {
@@ -56,9 +55,7 @@ export async function fixture() {
     });
   const login = async (input = hello()) => {
     const socket = await connect();
-    const response = once(socket, 'message');
-    socket.send(JSON.stringify(input));
-    await response;
+    await request(socket, input);
     return socket;
   };
   const reject = async (input: unknown, authenticated = false) => {
@@ -74,6 +71,11 @@ export async function fixture() {
   return { ...server, connect, login, hello, revoke, reject, credential, node, nodes, storage, cleanup, log };
 }
 export const closeCode = (promise: Promise<unknown[]>) => promise.then(([code]) => code);
-export const receive = (promise: Promise<unknown[]>) =>
-  promise.then(([data]) => envelopeSchema.parse(JSON.parse(String(data))));
-export const body = (promise: Promise<unknown[]>) => receive(promise).then((message) => message.body);
+export async function request(socket: WebSocket, input: unknown) {
+  const response = once(socket, 'message').then(([data]) => envelopeSchema.parse(JSON.parse(String(data))));
+  const closed = once(socket, 'close').then(([code]) => {
+    throw new Error(`Closed ${code}`);
+  });
+  socket.send(JSON.stringify(input));
+  return Promise.race([response, closed]);
+}
