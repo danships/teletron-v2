@@ -220,6 +220,8 @@ it('AT-N05 caches a higher scene before acknowledging and reports state every 60
   });
   f.hub.welcome();
   f.hub.scene(3);
+  f.hub.frame('ping');
+  expect(f.hub.messages.at(-1)?.type).toBe('pong');
   f.hub.frame('session.ready');
   await vi.waitFor(() => expect(f.status).toHaveBeenLastCalledWith('ready'));
   expect(states(f.hub)).toHaveLength(1);

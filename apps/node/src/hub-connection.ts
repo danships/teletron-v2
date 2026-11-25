@@ -107,13 +107,7 @@ class HubSession {
   ) {
     socket.addEventListener('open', () => this.send('hello', hello), { once: true });
     socket.addEventListener('message', (event) => {
-      if (!(event instanceof MessageEvent)) return;
-      this.pending = this.pending
-        .then(() => this.receive(event.data, hello))
-        .catch(() => {
-          this.hooks.cacheError();
-          this.socket.close(4008);
-        });
+      if (event instanceof MessageEvent) this.receive(event.data, hello);
     });
     socket.addEventListener(
       'close',
@@ -142,7 +136,7 @@ class HubSession {
     this.send('error', { code, message: code, retryable: false }, reference);
   }
 
-  private async receive(input: unknown, hello: HelloBody) {
+  private receive(input: unknown, hello: HelloBody) {
     if (this.socket.readyState !== WebSocket.OPEN) return;
     if (typeof input !== 'string') return this.error('BAD_REQUEST');
     const limit = hello.manifest.limits.maxJsonBytes;
@@ -150,8 +144,16 @@ class HubSession {
     if (!decoded.ok) return this.invalidFrame(input, limit, decoded.error.code);
     const frame = decoded.value.known ? decoded.value.message : decoded.value.envelope;
     if (frame.v !== PROTOCOL_MAJOR) return this.socket.close(4001);
-    if (decoded.value.known) await this.handle(decoded.value.message, hello);
-    else if (frame.type !== 'error' && decoded.value.handling === 'error') this.error('UNKNOWN_TYPE', frame.id);
+    if (decoded.value.known) {
+      const { message } = decoded.value;
+      if (message.type === 'ping') return this.send('pong', {}, message.id);
+      this.pending = this.pending
+        .then(() => this.handle(message, hello))
+        .catch(() => {
+          this.hooks.cacheError();
+          this.socket.close(4008);
+        });
+    } else if (frame.type !== 'error' && decoded.value.handling === 'error') this.error('UNKNOWN_TYPE', frame.id);
   }
 
   private invalidFrame(input: string, limit: number, code: ErrorCode) {
@@ -161,18 +163,15 @@ class HubSession {
   }
 
   private async handle(message: SessionMessage, hello: HelloBody) {
+    if (this.socket.readyState !== WebSocket.OPEN) return;
     if (message.type === 'welcome') return this.authenticate(message.body, hello);
-    if (message.type === 'ping') return this.send('pong', {}, message.id);
     if (!this.welcome) return;
-    if (message.type === 'session.ready') {
-      if (this.report) return;
+    if (message.type === 'session.ready' && !this.report) {
       if (!this.applied) this.ack();
       this.report = setInterval(() => this.ack(), 60_000);
       this.hooks.ready();
     }
-    if (message.type === 'display.scene.set' || message.type === 'display.data.update') {
-      await this.apply(message);
-    }
+    if (message.type === 'display.scene.set' || message.type === 'display.data.update') await this.apply(message);
   }
 
   private authenticate(welcome: WelcomeBody, hello: HelloBody) {
