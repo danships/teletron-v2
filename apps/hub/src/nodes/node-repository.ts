@@ -2,6 +2,7 @@ import type { Repository } from 'supersave';
 import { nodeSchema, tokenSchema, type NodeRecord, type TokenRecord } from './node-record.js';
 
 export class NodeRepository {
+  private pendingAuthentications = 0;
   private queue: Promise<void> = Promise.resolve();
   constructor(private readonly repository: Repository<NodeRecord>) {}
 
@@ -37,6 +38,18 @@ export class NodeRepository {
     } catch {
       return { status: 'unauthorized' };
     }
+  }
+
+  authenticate(hash: string, accept: (record: { node: NodeRecord; token: TokenRecord }) => void): Promise<void> {
+    if (this.pendingAuthentications >= 16) return Promise.reject(new Error('Authentication busy'));
+    this.pendingAuthentications++;
+    return this.run(async () => {
+      const record = await this.findByHash(hash);
+      if (record.status !== 'found') throw new Error('Unauthorized');
+      accept(record);
+    }).finally(() => {
+      this.pendingAuthentications--;
+    });
   }
 
   create(input: NodeRecord): Promise<void> {
