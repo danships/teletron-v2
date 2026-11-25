@@ -1,4 +1,6 @@
-import { PROTOCOL_VERSION } from '@teletron/protocol';
+import { startNode } from './hub-connection.js';
 
-// Node entry point. Roadmap slice 1 adds the hub connection and the Pi web display.
-console.log(`Teletron node, protocol v${PROTOCOL_VERSION}`);
+await startNode(process.env).catch(() => {
+  console.error('Teletron node startup failed. Check the node configuration.');
+  process.exitCode = 1;
+});
