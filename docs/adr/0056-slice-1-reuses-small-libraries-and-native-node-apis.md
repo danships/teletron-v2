@@ -29,6 +29,9 @@ TypeScript type inference and JSON Schema export from one definition.
   `@teletron/protocol`; applications do not define competing protocol schemas.
 - Use `ws` only for the hub WebSocket server. Use the Node.js 24 global
   `WebSocket` client in the Pi node and the browser's native client APIs.
+- Use native Node file operations for the Pi display's atomic cache. Reuse the
+  shared display message schema for its state and use the existing Zod
+  dependency for node configuration and the local cache version wrapper.
 - Use `supersave` with `mysql2`, as required by ADR-004. Use only supersave's
   data access layer; do not expose its optional HTTP API as Teletron's API.
 - Use Node's built-in `fetch` for Open-Meteo and the YouTube Data API. Do not

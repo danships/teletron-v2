@@ -11,7 +11,8 @@
     "start": "node --env-file-if-exists=../../.env dist/index.js"
   },
   "dependencies": {
-    "@teletron/protocol": "workspace:*"
+    "@teletron/protocol": "workspace:*",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "tsx": "^4.19.4"
